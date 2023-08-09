@@ -1,5 +1,6 @@
 $( document ).ready(function() {
     buscar_dados();
+    initSelect2NomeCompleto();
     $('#cep').mask('00000-000');
     $('#telefone').mask('(00) 0000-0000');
     $('#celular').mask('(00) 00000-0000');
@@ -19,12 +20,16 @@ function open_md_cadastro(){
 }
 
 function buscar_dados(){
+
+    let nome_completo = $('#select2_nome_completo').val();
+
     $.ajax({
         type: "POST",
         url: 'rotinas/index.php',
         dataType:"json",
         data:{
-            acao : btoa ('buscar_dados')        
+            nome_completo : nome_completo,
+            acao : btoa('buscar_dados')        
         },
         success: function(response){
             if(response.status == true){
@@ -279,7 +284,7 @@ function editar(){
 }
    
 function editar_formulario(id){
-    $('#md_editar_pessoa_fisica').modal('show')
+    $('#md_editar_pessoa_fisica').modal('show');
     $('#valor_id_editar').val(id);
 
     $.ajax({
@@ -339,3 +344,37 @@ function clean_form(){
     $('#masculino').prop('checked', true);
 
 }
+
+function initSelect2NomeCompleto() {
+    $('#select2_nome_completo').select2({
+        language: "pt-BR",
+        ajax: {
+            type: "POST",
+            url: 'rotinas/index.php',
+            dataType: "json",
+            data: function(params) {
+                return {
+                    acao: btoa('buscar_nome_completo'),
+                    filtro: params.term
+                };
+            },
+            processResults: function(response) {
+
+                if(response.status == true){
+                    return {
+                        results: response.row
+                    };
+                } else {
+                    alert_page('Erro!', response.msg, 'Warning');
+                    return {
+                        results: []
+                    };
+                }
+            },
+            cache:true
+        },
+        placeholder: 'Digite um nome',
+        minimumInputLength: 3
+    });
+}
+    

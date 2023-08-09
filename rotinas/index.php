@@ -19,7 +19,10 @@ switch ($acao){
         break;  
     case 'salvar_editar':
         salvar_editar($conexao);
-        break;  
+        break; 
+    case 'buscar_nome_completo':
+        buscar_nome_completo($conexao);
+        break;
 
 }
 
@@ -383,7 +386,20 @@ function buscar_dados($conexao){
         define('msg', 'msg');
         define('row', 'row');
 
-        $sql = "SELECT * FROM public.cadastro WHERE situacao = 1";
+        $id         = $_POST['id'];
+        $id_nome_completo = $_POST['nome_completo'];
+
+        if($id > 0 ){
+            $clausula = "AND id_cadastro = $id";
+        } else {
+            $clausula = '';
+        }
+
+        if($id_nome_completo != ''){
+            $clausula = "AND id_cadastro = '$id_nome_completo'";
+        }
+
+        $sql = "SELECT * FROM public.cadastro WHERE situacao = 1 $clausula";
         $resultado = mysqli_query($conexao, $sql);
         $row = mysqli_fetch_all($resultado, MYSQLI_ASSOC);
 
@@ -427,4 +443,39 @@ function create_acao($id){
     </button>
 
     <?php  return ob_get_clean();
+}
+
+function buscar_nome_completo($conexao){
+    try {
+
+        define('status', 'status');
+        define('row', 'row');
+        define('msg', 'msg');
+
+        $filtro = $_POST['filtro'];
+
+        if (!empty($filtro)) {
+            $clausula = "AND nome_completo LIKE '%$filtro%' ";
+        }
+
+        $sql = "SELECT id_cadastro as id, concat_ws(' - ', id_cadastro, nome_completo) as text FROM public.cadastro WHERE situacao = 1 $clausula";
+        $resultado = mysqli_query($conexao, $sql);
+        $row = mysqli_fetch_all($resultado, MYSQLI_ASSOC);
+
+        if ($resultado) {
+            $resposta = array(status => true, row => $row);
+        } else {
+            $mensagem = 'Erro ao buscar dados';
+            $resposta = array(status => false, row => '', msg => $mensagem);
+        }
+
+        mysqli_close($conexao);
+        echo json_encode($resposta);
+
+
+    } catch (Exception $e) {
+        $mensagem = 'Erro ao se comunicar com servidor ' . $e->getMessage();
+        $resposta = array(status => false, msg => $mensagem);
+        echo json_encode($resposta);
+    }
 }
