@@ -1,13 +1,56 @@
-/*Cards*/
-body {
-    margin: 1%;
-}
-button {
-    margin-top: 1%;
+/* formulario */
+#content-wrapper {
+    margin:1%;
 }
 h4 {
- margin-top: 1%;
-}
-#table{
     margin-top: 1%;
+}
+.form-group {
+    margin-top: 2%;
+}
+
+.navbar {
+    margin-bottom:2%;
+}
+
+/* div de filtros do datatables */
+
+.filter_datatables {
+    margin-top: 2%;
+    margin-bottom: 2%;
+}
+
+/* margens dos botaos de buscar */
+
+.btn_buscar {
+    margin-top: 5%;
+}
+
+.btn-secondary {
+    background-color: black!important;
+}
+
+/* altuta do select2 */
+
+.select2-selection {
+    height: 36px!important;
+}
+
+.select2-selection__rendered {
+    padding-top: 0.5%!important;
+}
+
+.select2-conteiner {
+    margin-top: 0.4px;
+}
+
+/* botao exportar datatables */
+
+.bs-bars {
+    float: right!important;
+    margin-left: 5px!important;
+}
+
+#cadastro {
+    cursor: pointer;
 }

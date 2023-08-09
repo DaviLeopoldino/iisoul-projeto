@@ -181,7 +181,7 @@ function salvar_formulario($conexao){
     try{
         define('status', 'status');
         define('msg', 'msg');
-        
+
         $nome_completo      = $_POST['nome_completo'];
         $data_nascimento    = $_POST['data_nascimento'];
         $cpf                = base64_decode($_POST ['cpf']); 
@@ -320,16 +320,9 @@ function editar_formulario($conexao){
         $i = 0;
             
         $id = $_POST['id'];
-        $sql = "SELECT * FROM public.cadastro WHERE id_cadastro = $id";
+        $sql = "SELECT * FROM public.usuarios WHERE id_cadastro = $id";
         $resultado = mysqli_query($conexao, $sql);
         $row = mysqli_fetch_all($resultado, MYSQLI_ASSOC);
-        
-        $row[$i]['telefone']        = '(' . substr($row[$i]['telefone'], 0, 2) . ') ' . substr($row[$i]['telefone'], 2, 4) . '-' . substr($row[$i]['telefone'], 6, 4);
-        $row[$i]['celular']         = '(' . substr($row[$i]['celular'], 0, 2) . ') ' . substr($row[$i]['celular'], 2, 5) . '-' . substr($row[$i]['celular'], 7, 4);
-        $row[$i]['cep']             = substr($row[$i]['cep'], 0, 5) . '-' . substr($row[$i]['cep'], 5, 3);
-        $row[$i]['sexo']            = $row[$i]['sexo'] == 'M' ? 'Masculino' : 'Feminino';
-        $row[$i]['cpf']             = substr($row[$i]['cpf'], 0, 3) . '.' . substr($row[$i]['cpf'], 3, 3) . '.' . substr($row[$i]['cpf'], 6, 3) . '-' . substr($row[$i]['cpf'], 9, 2);
-        $row[$i]['rg']              = substr($row[$i]['rg'], 0, 2) . '.' . substr($row[$i]['rg'], 2, 3) . '.' . substr($row[$i]['rg'], 5, 3) . '-' . substr($row[$i]['rg'], 8, 1);
 
         if ($resultado){
             $resposta = array(status =>true, row => $row);
@@ -386,8 +379,16 @@ function buscar_dados($conexao){
         define('msg', 'msg');
         define('row', 'row');
 
-        $id         = $_POST['id'];
-        $id_nome_completo = $_POST['nome_completo'];
+        $id                 = $_POST['id'];
+        $id_nome_completo   = $_POST['nome_completo'];
+        $cpf                = $_POST['cpf'];
+        $cpf                = base64_decode($cpf);
+        $rg                 = $_POST['rg'];
+        $rg                 = base64_decode($rg);
+        $email              = $_POST['email'];
+        $data_ini           = $_POST['data_ini'];
+        $data_fim           = $_POST['data_fim'];
+        
 
         if($id > 0 ){
             $clausula = "AND id_cadastro = $id";
@@ -397,6 +398,30 @@ function buscar_dados($conexao){
 
         if($id_nome_completo != ''){
             $clausula = "AND id_cadastro = '$id_nome_completo'";
+        }
+
+        if($cpf != ''){
+            $cpf = str_replace('.', '', $cpf);
+            $cpf = str_replace('-', '', $cpf);
+            $clausula = " AND cpf = '$cpf'";
+        }
+
+        if($rg != ''){
+            $rg = str_replace('.', '', $rg);
+            $rg = str_replace('-', '', $rg);
+            $clausula = " AND rg = '$rg'";
+        }
+
+        if($email != ''){
+            $clausula = " AND email = '$email'";
+        }
+
+        if($data_ini != ''){
+            $clausula = " AND data_nascimento >= '$data_ini'";
+        }
+
+        if($data_fim != ''){
+            $clausula = " AND data_nascimento <= '$data_fim'";
         }
 
         $sql = "SELECT * FROM public.cadastro WHERE situacao = 1 $clausula";
