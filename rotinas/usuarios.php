@@ -19,12 +19,15 @@ switch ($acao){
         break;  
     case 'salvar_editar':
         salvar_editar($conexao);
-        break; 
+        break;
     case 'buscar_nome_completo':
         buscar_nome_completo($conexao);
-        break;
-    case 'add_nome';
+        break; 
+    case 'add_nome':
         add_nome($conexao);
+        break;
+    case 'add_cpf':
+        add_cpf($conexao);
         break;
 
 }
@@ -36,38 +39,10 @@ function salvar_editar($conexao){
         define('msg', 'msg');
         
         $id                 = $_POST['id'];
-        $nome_completo      = $_POST['nome_completo'];
-        $cpf                = base64_decode($_POST ['cpf']); 
-        $cpf                = str_replace('.','',$cpf);
-        $cpf                = str_replace('-','',$cpf);            
-        $email              = $_POST['email']; 
-        
-        
-
-        if($nome_completo == ''){
-            $mensagem = 'Preencha o campo nome completo';
-            $resposta = array(status => false, msg => $mensagem);
-            return json_encode($resposta);
-            exit;
-        }
-        if($cpf == ''){
-            $mensagem = 'Preencha o campo cpf';
-            $resposta = array(status => false, msg => $mensagem);
-            return json_encode($resposta);
-            exit;
-        }
-        
-        if($email == ''){
-            $mensagem = 'Preencha o campo email';
-            $resposta = array(status => false, msg => $mensagem);
-            return json_encode($resposta);
-            exit;
-        }
+        $tipo               = $_POST['tipo'];
         
         $sql =  "UPDATE public.usuarios
-                    SET nome_completo   = '$nome_completo',
-                        cpf             = '$cpf',
-                        email           = '$email',
+                    SET tipo            = $tipo
                   WHERE id_cadastro     = $id";
         
         $resultado = mysqli_query($conexao, $sql);
@@ -100,8 +75,7 @@ function salvar_formulario($conexao){
         $nome_completo      = $_POST['nome_completo'];
         $cpf                = base64_decode($_POST ['cpf']); 
         $cpf                = str_replace('.','',$cpf);
-        $cpf                = str_replace('-','',$cpf);                
-        $email              = $_POST['email'];
+        $cpf                = str_replace('-','',$cpf);
 
         if($nome_completo == ''){
             $mensagem = 'Preencha o campo nome completo';
@@ -109,21 +83,8 @@ function salvar_formulario($conexao){
             return json_encode($resposta);
             exit;
         }
-        if($cpf == ''){
-            $mensagem = 'Preencha o campo cpf';
-            $resposta = array(status => false, msg => $mensagem);
-            return json_encode($resposta);
-            exit;
-        }
-        if($email == ''){
-            $mensagem = 'Preencha o campo email';
-            $resposta = array(status => false, msg => $mensagem);
-            return json_encode($resposta);
-            exit;
-        }
         
-        $sql =  "INSERT INTO public.cadastro(nome_completo, data_nascimento, cpf, rg, telefone, celular, email, logradouro, bairro, numero, complemento, cep, sexo) 
-            VALUES('$nome_completo','$cpf','$email')";
+        $sql =  "INSERT INTO usuarios(nome_completo, cpf) VALUES('$nome_completo','$cpf')";
 
         $resultado = mysqli_query($conexao, $sql);
 
@@ -154,7 +115,7 @@ function editar_formulario($conexao){
         $i = 0;
             
         $id = $_POST['id'];
-        $sql = "SELECT * FROM public.usuarios WHERE id_cadastro = $id";
+        $sql = "SELECT tipo FROM public.usuarios WHERE id_cadastro = $id";
         $resultado = mysqli_query($conexao, $sql);
         $row = mysqli_fetch_all($resultado, MYSQLI_ASSOC);
         
@@ -253,7 +214,7 @@ function buscar_dados($conexao){
             $clausula = " AND tipo = '$nome_add'";
         }
 
-        $sql = "SELECT a.email, cpf, nome_completo, tipo 
+        $sql = "SELECT a.email, b.id_cadastro, cpf, nome_completo, tipo 
                 FROM cadastro as a 
                 JOIN usuarios as b ON a.id_cadastro = b.id_cadastro AND b.situacao = 1";
         $resultado = mysqli_query($conexao, $sql);
@@ -308,7 +269,9 @@ function buscar_nome_completo($conexao){
             $clausula = "AND nome_completo LIKE '%$filtro%' ";
         }
 
-        $sql = "SELECT id_cadastro as id, concat_ws(' - ', id_cadastro, nome_completo) as text FROM public.cadastro WHERE situacao = 1 $clausula";
+        $sql = "SELECT b.id_cadastro as id, concat_ws(' - ', b.id_cadastro, nome_completo) as text 
+                FROM public.cadastro as a
+                JOIN usuarios as b ON a.id_cadastro = b.id_cadastro WHERE b.situacao = 1 $clausula";
         $resultado = mysqli_query($conexao, $sql);
         $row = mysqli_fetch_all($resultado, MYSQLI_ASSOC);
 
@@ -343,7 +306,44 @@ function add_nome($conexao){
             $clausula = "AND nome_completo LIKE '%$filtro%' ";
         }
 
-        $sql = "SELECT id_cadastro as id, concat_ws(' - ', id_cadastro, nome_completo) as text FROM public.cadastro WHERE situacao = 1 $clausula";
+        $sql = "SELECT id_cadastro as id, concat_ws(' - ', id_cadastro, nome_completo) as text 
+                FROM cadastro WHERE situacao = 1 $clausula";
+        $resultado = mysqli_query($conexao, $sql);
+        $row = mysqli_fetch_all($resultado, MYSQLI_ASSOC);
+
+        if ($resultado) {
+            $resposta = array(status => true, row => $row);
+        } else {
+            $mensagem = 'Erro ao buscar dados';
+            $resposta = array(status => false, row => '', msg => $mensagem);
+        }
+
+        mysqli_close($conexao);
+        echo json_encode($resposta);
+
+
+    } catch (Exception $e) {
+        $mensagem = 'Erro ao se comunicar com servidor ' . $e->getMessage();
+        $resposta = array(status => false, msg => $mensagem);
+        echo json_encode($resposta);
+    }
+}
+
+function add_cpf($conexao){
+    try {
+
+        define('status', 'status');
+        define('row', 'row');
+        define('msg', 'msg');
+
+        $filtro = $_POST['filtro'];
+
+        if (!empty($filtro)) {
+            $clausula = "AND cpf LIKE '%$filtro%' ";
+        }
+
+        $sql = "SELECT id_cadastro as id, concat_ws(' - ', id_cadastro, cpf) as text 
+                FROM cadastro WHERE situacao = 1 $clausula";
         $resultado = mysqli_query($conexao, $sql);
         $row = mysqli_fetch_all($resultado, MYSQLI_ASSOC);
 

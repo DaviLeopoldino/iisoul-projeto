@@ -320,7 +320,7 @@ function editar_formulario($conexao){
         $i = 0;
             
         $id = $_POST['id'];
-        $sql = "SELECT * FROM public.usuarios WHERE id_cadastro = $id";
+        $sql = "SELECT * FROM public.cadastro WHERE id_cadastro = $id";
         $resultado = mysqli_query($conexao, $sql);
         $row = mysqli_fetch_all($resultado, MYSQLI_ASSOC);
 

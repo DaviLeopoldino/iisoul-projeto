@@ -78,29 +78,19 @@ function buscar_dados(){
 function salvar(){
     let nome_completo   = $('#nome').val();
     let cpf             = $('#cpf').val();
-    let email           = $('#email').val();
 
-   
         if(nome_completo == ''){
             alert_page('Erro', 'Verifique seu nome', 'warning');
             return false;
         }
-        if(cpf == ''){
-            alert_page('Erro', 'Verifique seu CPF', 'warning');
-            return false;
-        }
-        if(email == ''){
-            alert_page('Erro', 'verifique seu email', 'warning');
-            return false;
-        }
+
     $.ajax({
         type: "POST",
         url: 'rotinas/usuarios.php',
         dataType:"json",
         data:{
             nome_completo   : nome_completo,
-            cpf             : btoa (cpf),        
-            email           : email, 
+            cpf             : btoa (cpf),
             acao            : btoa ('salvar_formulario')        
         },
         success: function(response){
@@ -159,64 +149,12 @@ function excluir_formulario(id){
 
 function editar(){
 
-    let id = $('#valor_id_editar').val();
+    let id = $('#valor_id_editar_tipo').val();
 
-    let nome_completo   = $('#nome_edit').val();
-    let data_nascimento = $('#nascimento_edit').val();
-    let cpf             = $('#cpf_edit').val();
-    let rg              = $('#rg_edit').val();
-    let telefone        = $('#telefone_edit').val();
-    let celular         = $('#celular_edit').val();
-    let email           = $('#email_edit').val();
-    let logradouro      = $('#logradouro_edit').val();
-    let bairro          = $('#bairro_edit').val();
-    let numero          = $('#numero_edit').val();
-    let complemento     = $('#complemento_edit').val();
-    let cep             = $('#cep_edit').val();
-    let sexo            = $('input[name="sexo_edit"]:checked').val();
+    let tipo = $('#filter_edit_tipo').val();
 
-        if(nome_completo == ''){
-            alert_page('Erro', 'Verifique seu nome', 'warning');
-            return false;
-        }
-        if(data_nascimento == ''){
-            alert_page('Erro', 'Verifique sua data de nascimento', 'warning');
-            return false;
-        }
-        if(cpf == ''){
-            alert_page('Erro', 'Verifique seu CPF', 'warning');
-            return false;
-        }
-        if(rg == ''){
-            alert_page('Erro', 'verifique seu RG', 'warning');
-            return false;
-        }
-        if(telefone == ''){
-            alert_page('Erro', 'verifique seu telefone', 'warning');
-            return false;
-        }
-        if(celular == ''){
-            alert_page('Erro', 'verifique seu celular', 'warning');
-            return false;
-        }
-        if(email == ''){
-            alert_page('Erro', 'verifique seu email', 'warning');
-            return false;
-        }
-        if(logradouro == ''){
-            alert_page('Erro', 'verifique seu logradouro', 'warning');
-            return false;
-        }
-        if(bairro == ''){
-            alert_page('Erro', 'verifique seu bairro', 'warning');
-            return false;
-        }
-        if(numero == ''){
-            alert_page('Erro', 'verifique seu numero', 'warning');
-            return false;
-        }
-        if(cep == ''){
-            alert_page('Erro', 'verifique seu CEP', 'warning');
+        if(tipo == ''){
+            alert_page('Erro', 'Verifique seu tipo', 'warning');
             return false;
         }
         
@@ -226,19 +164,7 @@ function editar(){
             dataType:"json",
             data:{
                 id              : id,
-                nome_completo   : nome_completo,
-                data_nascimento : data_nascimento,
-                cpf             : btoa (cpf),          
-                rg              : rg,             
-                telefone        : telefone,        
-                celular         : celular,         
-                email           : email,           
-                logradouro      : logradouro,      
-                bairro          : bairro,         
-                numero          : numero,         
-                complemento     : complemento,   
-                cep             : cep,           
-                sexo            : sexo,  
+                tipo            : tipo,  
                 acao            : btoa ('salvar_editar')        
             },
             success: function(response){
@@ -261,37 +187,20 @@ function editar(){
    
 function editar_formulario(id){
     $('#md_editar_pessoa_fisica').modal('show');
-    $('#valor_id_editar').val(id);
+    $('#valor_id_editar_tipo').val(id);
 
     $.ajax({
         type: "POST",
         url: 'rotinas/usuarios.php',
         dataType:"json",
-        data:{    
+        data:{
             id            : id,  
             acao          : btoa ('editar_formulario')        
         },
         success: function(response){
-            //console.log(response)
+            console.log(response)
             if(response.status == true){
-                $('#nome_edit').val(response.row[0].nome_completo);
-                $('#nascimento_edit').val(response.row[0].data_nascimento);
-                $('#cpf_edit').val(response.row[0].cpf);
-                $('#rg_edit').val(response.row[0].rg);
-                $('#telefone_edit').val(response.row[0].telefone);
-                $('#celular_edit').val(response.row[0].celular);
-                $('#email_edit').val(response.row[0].email);
-                $('#logradouro_edit').val(response.row[0].logradouro);
-                $('#bairro_edit').val(response.row[0].bairro);
-                $('#numero_edit').val(response.row[0].numero);
-                $('#complemento_edit').val(response.row[0].complemento);
-                $('#cep_edit').val(response.row[0].cep);
-
-                if (row[0].sexo == 'M'){
-                    $('#masculino_edit').prop('checked', true);
-                }else{
-                    $('#feminino_edit').prop('checked', true);
-                }
+                $('#filter_edit_tipo').val(response.row[0].tipo);
             }else{
                 alert_page('Erro!', response.msg, 'warning');
             }
@@ -322,7 +231,7 @@ function clean_form(){
 }
 
 function initSelect2NomeCompleto() {
-    $('#select2_nome_completo').select2({
+    $('#select2_nome_completo_u').select2({
         language: "pt-BR",
         ajax: {
             type: "POST",
@@ -354,8 +263,9 @@ function initSelect2NomeCompleto() {
     });
 }
 
-function initSelect2Nomeadd() {
+function initSelect2NomeAdd() {
     $('#select2_nome_add').select2({
+        dropdownParent: $('#md_adicionar_pessoa_fisica'),
         language: "pt-BR",
         ajax: {
             type: "POST",
@@ -363,7 +273,41 @@ function initSelect2Nomeadd() {
             dataType: "json",
             data: function(params) {
                 return {
-                    acao: btoa('buscar_nome_completo'),
+                    acao: btoa('add_nome'),
+                    filtro: params.term
+                };
+            },
+            processResults: function(response) {
+
+                if(response.status == true){
+                    return {
+                        results: response.row
+                    };
+                } else {
+                    alert_page('Erro!', response.msg, 'Warning');
+                    return {
+                        results: []
+                    };
+                }
+            },
+            cache:true
+        },
+        placeholder: 'Digite um nome',
+        minimumInputLength: 3
+    });
+}
+
+function initSelect2CpfAdd() {
+    $('#select2_cpf_add').select2({
+        dropdownParent: $('#md_adicionar_pessoa_fisica'),
+        language: "pt-BR",
+        ajax: {
+            type: "POST",
+            url: 'rotinas/usuarios.php',
+            dataType: "json",
+            data: function(params) {
+                return {
+                    acao: btoa('add_cpf'),
                     filtro: params.term
                 };
             },
