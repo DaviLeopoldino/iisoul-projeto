@@ -1,7 +1,8 @@
 $( document ).ready(function() {
     buscar_dados();
     initSelect2NomeCompleto();
-    initSelect2Nomeadd();
+    initSelect2NomeAdd();
+    initSelect2CpfAdd();
     $('#cep').mask('00000-000');
     $('#telefone').mask('(00) 0000-0000');
     $('#celular').mask('(00) 00000-0000');
@@ -36,7 +37,7 @@ $( document ).ready(function() {
 
 
 function open_md_cadastro(){
-    $('#md_cadastro_pessoa_fisica').modal('show');
+    $('#md_adicionar_pessoa_fisica').modal('show');
 }
 
 function buscar_dados(){
@@ -76,13 +77,8 @@ function buscar_dados(){
 }
 
 function salvar(){
-    let nome_completo   = $('#nome').val();
-    let cpf             = $('#cpf').val();
-
-        if(nome_completo == ''){
-            alert_page('Erro', 'Verifique seu nome', 'warning');
-            return false;
-        }
+    let nome_completo   = $('#select2_nome_add').val();
+    let cpf             = $('#select2_cpf_add').val();
 
     $.ajax({
         type: "POST",
@@ -326,7 +322,7 @@ function initSelect2CpfAdd() {
             },
             cache:true
         },
-        placeholder: 'Digite um nome',
+        placeholder: 'Digite um CPF',
         minimumInputLength: 3
     });
 }

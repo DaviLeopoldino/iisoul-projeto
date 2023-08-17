@@ -73,9 +73,7 @@ function salvar_formulario($conexao){
         define('msg', 'msg');
         
         $nome_completo      = $_POST['nome_completo'];
-        $cpf                = base64_decode($_POST ['cpf']); 
-        $cpf                = str_replace('.','',$cpf);
-        $cpf                = str_replace('-','',$cpf);
+        $cpf                = base64_decode($_POST ['cpf']);
 
         if($nome_completo == ''){
             $mensagem = 'Preencha o campo nome completo';
@@ -84,11 +82,18 @@ function salvar_formulario($conexao){
             exit;
         }
         
-        $sql =  "INSERT INTO usuarios(nome_completo, cpf) VALUES('$nome_completo','$cpf')";
-
+        $sql =  "SELECT id_cadastro, email FROM public.cadastro WHERE id_cadastro = $nome_completo or id_cadastro = $cpf";
         $resultado = mysqli_query($conexao, $sql);
+        $row = mysqli_fetch_all($resultado, MYSQLI_ASSOC);
 
-        if ($resultado){
+        $id = $row[0]['id_cadastro'];
+        $email = $row[0]['email'];
+        $senha = 'senha';
+
+        $save = "INSERT INTO public.usuarios(id_cadastro, email, senha) VALUES('$id','$email','$senha')";
+        $resultado2 = mysqli_query($conexao, $save);
+
+        if ($resultado2){
             $mensagem = 'Cadastro feito com sucesso';
             $resposta = array(status =>true, msg => $mensagem);
         }else{
@@ -148,7 +153,7 @@ function excluir_formulario($conexao){
             
         $id = $_POST['id'];
 
-        $sql = "UPDATE public.cadastro SET situacao = 0 WHERE id_cadastro = '$id'";
+        $sql = "UPDATE public.usuarios SET situacao = 0 WHERE id_cadastro = '$id'";
         $resultado = mysqli_query($conexao, $sql);
 
         if ($resultado){
@@ -199,19 +204,15 @@ function buscar_dados($conexao){
         if($cpf != ''){
             $cpf = str_replace('.', '', $cpf);
             $cpf = str_replace('-', '', $cpf);
-            $clausula = " AND cpf = '$cpf'";
+            $clausula = " AND id_cadastro = '$cpf'";
         }
 
         if($email != ''){
-            $clausula = " AND email = '$email'";
+            $clausula = " AND id_cadastro = '$email'";
         }
 
         if($tipo != ''){
-            $clausula = " AND tipo = '$tipo'";
-        }
-
-        if($nome_add != ''){
-            $clausula = " AND tipo = '$nome_add'";
+            $clausula = " AND id_cadastro = '$tipo'";
         }
 
         $sql = "SELECT a.email, b.id_cadastro, cpf, nome_completo, tipo 
